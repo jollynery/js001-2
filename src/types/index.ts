@@ -13,9 +13,9 @@ export interface Course {
   category: string;
   status: 'active' | 'completed' | 'locked';
   progress?: number;
-  createdAt: string;
-  updatedAt: string;
-  isPublished: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  isPublished?: boolean;
   totalRevenue?: number;
   completionRate?: number;
 }

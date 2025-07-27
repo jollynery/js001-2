@@ -23,9 +23,9 @@ export default function CreatedCourseCard({ course }: CreatedCourseCardProps) {
   const getDifficultyColor = () => {
     switch (course.difficulty) {
       case 'Beginner':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 flex items-center gap-1';
       case 'Intermediate':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-900 flex items-center gap-1';
       case 'Advanced':
         return 'bg-red-100 text-red-800';
       default:
@@ -35,8 +35,8 @@ export default function CreatedCourseCard({ course }: CreatedCourseCardProps) {
 
   const getStatusColor = () => {
     return course.isPublished 
-      ? 'bg-green-100 text-green-800' 
-      : 'bg-yellow-100 text-yellow-800';
+      ? 'bg-green-100 text-green-800 flex items-center gap-1'
+     : 'bg-yellow-100 text-yellow-900 flex items-center gap-1';
   };
 
   return (
@@ -44,19 +44,29 @@ export default function CreatedCourseCard({ course }: CreatedCourseCardProps) {
       <div className="relative">
         <img
           src={course.image}
-          alt={course.title}
+          alt={`Course cover for ${course.title}`}
+          width={400}
+          height={192}
+          loading="lazy"
           className="w-full h-48 object-cover rounded-t-xl"
         />
         <div className="absolute top-4 left-4 flex space-x-2">
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor()}`}>
+            {course.difficulty === 'Beginner' && <Play className="w-3 h-3" />}
+            {course.difficulty === 'Intermediate' && <TrendingUp className="w-3 h-3" />}
+            {course.difficulty === 'Advanced' && <Settings className="w-3 h-3" />}
             {course.difficulty}
           </span>
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor()}`}>
+            {course.isPublished ? <BookOpen className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
             {course.isPublished ? 'Published' : 'Draft'}
           </span>
         </div>
         <div className="absolute top-4 right-4">
-          <button className="bg-white/90 backdrop-blur-sm rounded-lg p-2 hover:bg-white transition-colors">
+          <button
+            className="bg-white/90 backdrop-blur-sm rounded-lg p-2 hover:bg-white transition-colors"
+            aria-label="More options"
+          >
             <MoreVertical className="w-4 h-4 text-gray-600" />
           </button>
         </div>
@@ -93,7 +103,7 @@ export default function CreatedCourseCard({ course }: CreatedCourseCardProps) {
               <span className="text-sm font-medium text-green-900">Rating</span>
             </div>
             <p className="text-lg font-bold text-green-900 mt-1">
-              {course.averageRating} ({course.totalReviews})
+              {course.averageRating?.toFixed(1) || 'N/A'} ({course.totalReviews?.toLocaleString() || 0})
             </p>
           </div>
         </div>
@@ -124,7 +134,7 @@ export default function CreatedCourseCard({ course }: CreatedCourseCardProps) {
         <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
           <div className="flex items-center space-x-1">
             <Calendar className="w-4 h-4" />
-            <span>Updated {new Date(course.lastActivity).toLocaleDateString()}</span>
+            <span>Updated {course.lastActivity ? new Date(course.lastActivity).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Never'}</span>
           </div>
           <div className="flex items-center space-x-1">
             <TrendingUp className="w-4 h-4" />
@@ -134,17 +144,26 @@ export default function CreatedCourseCard({ course }: CreatedCourseCardProps) {
 
         {/* Action Buttons */}
         <div className="flex space-x-2">
-          <button className="flex-1 flex items-center justify-center space-x-2 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+          <button
+            className="flex-1 flex items-center justify-center space-x-2 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+            aria-label="Edit course"
+          >
             <Edit3 className="w-4 h-4" />
             <span>Edit Course</span>
           </button>
           
-          <button className="flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors">
+          <button
+            className="flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors"
+            aria-label="Preview course"
+          >
             <Eye className="w-4 h-4" />
             <span>Preview</span>
           </button>
           
-          <button className="flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg hover:bg-gray-200 transition-colors">
+          <button
+            className="flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg hover:bg-gray-200 transition-colors"
+            aria-label="Course settings"
+          >
             <Settings className="w-4 h-4" />
           </button>
         </div>

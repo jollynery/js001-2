@@ -23,7 +23,7 @@ export default function CourseCard({ course }: CourseCardProps) {
       case 'completed':
         return 'border-green-200 bg-green-50';
       case 'locked':
-        return 'border-gray-200 bg-gray-50 opacity-75';
+        return 'border-gray-200 bg-gray-100/80';
       default:
         return 'border-gray-200 bg-white hover:shadow-lg';
     }
@@ -34,7 +34,7 @@ export default function CourseCard({ course }: CourseCardProps) {
       case 'Beginner':
         return 'bg-green-100 text-green-800';
       case 'Intermediate':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-900';
       case 'Advanced':
         return 'bg-red-100 text-red-800';
       default:
@@ -47,8 +47,11 @@ export default function CourseCard({ course }: CourseCardProps) {
       <div className="relative">
         <img
           src={course.image}
-          alt={course.title}
-          className="w-full h-48 object-cover rounded-t-xl"
+          alt={`${course.title} course cover image`}
+          className="w-full aspect-video object-cover rounded-t-xl"
+          width={400}
+          height={225}
+          loading="lazy"
         />
         <div className="absolute top-4 left-4">
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor()}`}>
@@ -62,7 +65,7 @@ export default function CourseCard({ course }: CourseCardProps) {
           <div className="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm p-3">
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600">Progress</span>
-              <span className="font-medium text-gray-900">{course.progress}%</span>
+              <span className="font-medium text-gray-900">{course.progress?.toFixed(0)}%</span>
             </div>
             <div className="mt-1 bg-gray-200 rounded-full h-2">
               <div 
@@ -120,13 +123,13 @@ export default function CourseCard({ course }: CourseCardProps) {
               course.status === 'locked'
                 ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                 : course.status === 'completed'
-                ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                ? 'bg-green-100 text-green-700 hover:bg-green-200 border border-green-300 flex items-center justify-center gap-2'
                 : 'bg-blue-600 text-white hover:bg-blue-700'
             }`}
             disabled={course.status === 'locked'}
           >
             {course.status === 'locked' ? 'Locked' : 
-             course.status === 'completed' ? 'Review Course' : 
+             course.status === 'completed' ? (<><CheckCircle className="w-4 h-4" /> Review Course</>) :
              course.progress ? 'Continue Learning' : 'Start Course'}
           </button>
         </div>

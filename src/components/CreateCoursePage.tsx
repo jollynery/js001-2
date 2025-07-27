@@ -21,6 +21,7 @@ interface CreateCoursePageProps {
 
 export default function CreateCoursePage({ onBack }: CreateCoursePageProps) {
   const [currentStep, setCurrentStep] = useState(1);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -30,16 +31,16 @@ export default function CreateCoursePage({ onBack }: CreateCoursePageProps) {
     reward: '',
     image: '',
     learningObjectives: [''],
-    prerequisites: ['']
+    prerequisites: [''],
+    visibility: 'public'
   });
-
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
   const steps = [
     { id: 1, title: 'Basic Info', icon: BookOpen },
     { id: 2, title: 'Content', icon: Video },
     { id: 3, title: 'Settings', icon: Settings },
     { id: 4, title: 'Review', icon: CheckCircle }
   ];
-
   const categories = [
     'Programming',
     'Web Development',
@@ -88,10 +89,18 @@ export default function CreateCoursePage({ onBack }: CreateCoursePageProps) {
               <input
                 type="text"
                 value={formData.title}
-                onChange={(e) => handleInputChange('title', e.target.value)}
+                onChange={(e) => {
+                  handleInputChange('title', e.target.value);
+                  setErrors(prev => ({...prev, title: ''}));
+                }}
                 placeholder="Enter your course title"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className={`w-full px-4 py-3 border ${
+                  errors.title ? 'border-red-500' : 'border-gray-300'
+                } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
               />
+              {errors.title && (
+                <p className="text-red-500 text-sm mt-1">{errors.title}</p>
+              )}
             </div>
 
             <div>
@@ -112,16 +121,36 @@ export default function CreateCoursePage({ onBack }: CreateCoursePageProps) {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Category *
                 </label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => handleInputChange('category', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Select a category</option>
-                  {categories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
+                {isAddingCategory ? (
+                  <input
+                    type="text"
+                    value={formData.category}
+                    onChange={e => handleInputChange('category', e.target.value)}
+                    placeholder="Enter new category"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                ) : (
+                  <select
+                    id="category-select"
+                    value={formData.category}
+                    onChange={(e) => {
+                      if (e.target.value === '__add_new__') {
+                        setIsAddingCategory(true);
+                        handleInputChange('category', '');
+                      } else {
+                        handleInputChange('category', e.target.value);
+                      }
+                    }}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    aria-label="Select course category"
+                  >
+                    <option value="">Select a category</option>
+                    {categories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                    <option value="__add_new__">Add new category...</option>
+                  </select>
+                )}
               </div>
 
               <div>
@@ -129,9 +158,11 @@ export default function CreateCoursePage({ onBack }: CreateCoursePageProps) {
                   Difficulty Level *
                 </label>
                 <select
+                  id="difficulty-select"
                   value={formData.difficulty}
                   onChange={(e) => handleInputChange('difficulty', e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  aria-label="Select course difficulty level"
                 >
                   <option value="Beginner">Beginner</option>
                   <option value="Intermediate">Intermediate</option>
@@ -173,12 +204,53 @@ export default function CreateCoursePage({ onBack }: CreateCoursePageProps) {
                 Course Thumbnail
               </label>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
-                <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 mb-2">Upload course thumbnail</p>
-                <p className="text-sm text-gray-500">PNG, JPG up to 2MB</p>
-                <button className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                <input
+                  type="file"
+                  id="thumbnail-upload"
+                  className="hidden"
+                  accept="image/png, image/jpeg"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      if (file.size > 2 * 1024 * 1024) {
+                        setErrors(prev => ({...prev, image: 'File size must be less than 2MB'}));
+                        return;
+                      }
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        setFormData(prev => ({...prev, image: event.target?.result as string}));
+                      };
+                      reader.readAsDataURL(file);
+                      setErrors(prev => ({...prev, image: ''}));
+                    }
+                  }}
+                />
+                <label htmlFor="thumbnail-upload" className="cursor-pointer">
+                  {formData.image ? (
+                    <img
+                      src={formData.image}
+                      alt="Course thumbnail preview"
+                      className="w-full h-48 object-cover mx-auto mb-4 rounded-lg"
+                    />
+                  ) : (
+                    <>
+                      <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-600 mb-2">Upload course thumbnail</p>
+                      <p className="text-sm text-gray-500">PNG, JPG up to 2MB</p>
+                    </>
+                  )}
+                </label>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('thumbnail-upload')?.click()}
+                  className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  aria-label="Choose course thumbnail"
+                >
                   Choose File
                 </button>
+                {errors.image && (
+                  <p className="text-red-500 text-sm mt-2">{errors.image}</p>
+                )}
               </div>
             </div>
           </div>
@@ -205,6 +277,7 @@ export default function CreateCoursePage({ onBack }: CreateCoursePageProps) {
                     <button
                       onClick={() => removeArrayItem('learningObjectives', index)}
                       className="text-red-500 hover:text-red-700"
+                      aria-label="Remove learning objective"
                     >
                       ×
                     </button>
@@ -237,6 +310,7 @@ export default function CreateCoursePage({ onBack }: CreateCoursePageProps) {
                     <button
                       onClick={() => removeArrayItem('prerequisites', index)}
                       className="text-red-500 hover:text-red-700"
+                      aria-label="Remove prerequisite"
                     >
                       ×
                     </button>
@@ -308,14 +382,28 @@ export default function CreateCoursePage({ onBack }: CreateCoursePageProps) {
               </label>
               <div className="space-y-3">
                 <label className="flex items-center">
-                  <input type="radio" name="visibility" value="public" className="mr-3" defaultChecked />
+                  <input
+                    type="radio"
+                    name="visibility"
+                    value="public"
+                    className="mr-3"
+                    checked={formData.visibility === 'public'}
+                    onChange={(e) => handleInputChange('visibility', e.target.value)}
+                  />
                   <div>
                     <p className="font-medium">Public</p>
                     <p className="text-sm text-gray-500">Anyone can find and enroll in your course</p>
                   </div>
                 </label>
                 <label className="flex items-center">
-                  <input type="radio" name="visibility" value="unlisted" className="mr-3" />
+                  <input
+                    type="radio"
+                    name="visibility"
+                    value="unlisted"
+                    className="mr-3"
+                    checked={formData.visibility === 'unlisted'}
+                    onChange={(e) => handleInputChange('visibility', e.target.value)}
+                  />
                   <div>
                     <p className="font-medium">Unlisted</p>
                     <p className="text-sm text-gray-500">Only people with the link can access</p>
@@ -330,15 +418,28 @@ export default function CreateCoursePage({ onBack }: CreateCoursePageProps) {
               </label>
               <div className="space-y-3">
                 <label className="flex items-center">
-                  <input type="checkbox" className="mr-3" defaultChecked />
+                  <input
+                    type="checkbox"
+                    className="mr-3"
+                    defaultChecked
+                    aria-label="Allow immediate enrollment"
+                  />
                   <span>Allow immediate enrollment</span>
                 </label>
                 <label className="flex items-center">
-                  <input type="checkbox" className="mr-3" />
+                  <input
+                    type="checkbox"
+                    className="mr-3"
+                    aria-label="Require instructor approval"
+                  />
                   <span>Require instructor approval</span>
                 </label>
                 <label className="flex items-center">
-                  <input type="checkbox" className="mr-3" />
+                  <input
+                    type="checkbox"
+                    className="mr-3"
+                    aria-label="Set enrollment deadline"
+                  />
                   <span>Set enrollment deadline</span>
                 </label>
               </div>
@@ -496,7 +597,29 @@ export default function CreateCoursePage({ onBack }: CreateCoursePageProps) {
               
               {currentStep < 4 ? (
                 <button
-                  onClick={() => setCurrentStep(currentStep + 1)}
+                  onClick={() => {
+                    const requiredFields: { [K in keyof typeof formData]?: string } = {
+                      title: 'Course title is required',
+                      description: 'Course description is required',
+                      category: 'Category is required',
+                      duration: 'Duration is required',
+                      reward: 'Reward is required'
+                    };
+                    
+                    const newErrors: Record<string, string> = {};
+                    (Object.keys(requiredFields) as (keyof typeof formData)[]).forEach((field) => {
+                      if (formData[field] === '') {
+                        newErrors[field] = requiredFields[field]!;
+                      }
+                    });
+                    
+                    if (Object.keys(newErrors).length > 0) {
+                      setErrors(newErrors);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else {
+                      setCurrentStep(currentStep + 1);
+                    }
+                  }}
                   className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   Next

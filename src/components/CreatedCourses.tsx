@@ -38,6 +38,7 @@ export default function CreatedCourses() {
           <p className="text-gray-600 mt-1">Manage and track your educational content</p>
         </div>
         <button
+          aria-label="Create new course"
           onClick={() => setShowCreateModal(true)}
           className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl"
         >
@@ -115,7 +116,9 @@ export default function CreatedCourses() {
             </div>
             <div>
               <p className="text-sm text-gray-600">Avg Rating</p>
-              <p className="text-xl font-bold text-gray-900">{mockCourseStats.averageRating}</p>
+              <p className="text-xl font-bold text-gray-900">
+                {mockCourseStats.averageRating?.toFixed(1) || 'N/A'}
+              </p>
             </div>
           </div>
         </div>
@@ -128,6 +131,7 @@ export default function CreatedCourses() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
+                aria-label="Search courses"
                 type="text"
                 placeholder="Search your courses..."
                 value={searchTerm}
@@ -141,6 +145,7 @@ export default function CreatedCourses() {
             <div className="flex items-center space-x-2">
               <Filter className="w-5 h-5 text-gray-400" />
               <select
+                aria-label="Filter courses by status"
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
                 className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -151,7 +156,10 @@ export default function CreatedCourses() {
               </select>
             </div>
 
-            <select className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <select
+              aria-label="Sort courses"
+              className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
               <option>Sort by: Recent</option>
               <option>Sort by: Title</option>
               <option>Sort by: Students</option>
@@ -173,7 +181,7 @@ export default function CreatedCourses() {
         <div className="text-center py-12">
           <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No courses found</h3>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 mb-6 max-w-md mx-auto">
             {searchTerm || filterStatus !== 'all' 
               ? 'Try adjusting your search or filters'
               : 'Create your first course to get started'
@@ -181,6 +189,7 @@ export default function CreatedCourses() {
           </p>
           {!searchTerm && filterStatus === 'all' && (
             <button
+              aria-label="Create first course"
               onClick={() => setShowCreateModal(true)}
               className="inline-flex items-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
             >

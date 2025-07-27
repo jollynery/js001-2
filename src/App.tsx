@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Header from './components/Header';
+import { BookOpen } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import CourseCard from './components/CourseCard';
 import Leaderboard from './components/Leaderboard';
@@ -10,6 +11,8 @@ import { mockCourses } from './data/mockData';
 
 function App() {
   const [activeTab, setActiveTab] = useState('courses');
+  // Extract unique categories from mockCourses
+  const categories = Array.from(new Set(mockCourses.map(course => course.category))).filter(Boolean);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -19,6 +22,8 @@ function App() {
         return <Leaderboard />;
       case 'tokenomics':
         return <Tokenomics />;
+      case 'create-course':
+        return <CreateCoursePage onBack={() => setActiveTab('courses')} />;
       default:
         return (
           <>
@@ -32,11 +37,9 @@ function App() {
                 <div className="flex items-center space-x-4">
                   <select className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <option>All Categories</option>
-                    <option>Programming</option>
-                    <option>Web Development</option>
-                    <option>Blockchain</option>
-                    <option>CyberSecurity</option>
-                    <option>Data Science</option>
+                    {categories.map((cat) => (
+                      <option key={cat}>{cat}</option>
+                    ))}
                   </select>
                   <select className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <option>All Levels</option>
@@ -59,7 +62,7 @@ function App() {
   };
 
   return (
-    <div className={`min-h-screen ${activeTab === 'create-course' ? 'bg-gray-50' : 'bg-gray-50'}`}>
+    <div className="min-h-screen bg-gray-50">
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />
       
       {activeTab === 'create-course' ? (
@@ -77,7 +80,7 @@ function App() {
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center space-x-3 mb-4">
                 <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-lg">
-                  <span className="text-white font-bold text-lg">JSc</span>
+                  <BookOpen className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-gray-900">Jolly-Scholar</h3>

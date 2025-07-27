@@ -12,13 +12,27 @@ import {
   CheckCircle
 } from 'lucide-react';
 
+interface FormData {
+  title: string;
+  description: string;
+  category: string;
+  difficulty: string;
+  duration: string;
+  reward: string;
+  image: string;
+  learningObjectives: string[];
+  prerequisites: string[];
+  visibility: 'public' | 'unlisted';
+}
+
 interface CreateCourseModalProps {
   onClose: () => void;
 }
 
 export default function CreateCourseModal({ onClose }: CreateCourseModalProps) {
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState({
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [formData, setFormData] = useState<FormData>({
     title: '',
     description: '',
     category: '',
@@ -27,7 +41,8 @@ export default function CreateCourseModal({ onClose }: CreateCourseModalProps) {
     reward: '',
     image: '',
     learningObjectives: [''],
-    prerequisites: ['']
+    prerequisites: [''],
+    visibility: 'public'
   });
 
   const steps = [
@@ -85,10 +100,18 @@ export default function CreateCourseModal({ onClose }: CreateCourseModalProps) {
               <input
                 type="text"
                 value={formData.title}
-                onChange={(e) => handleInputChange('title', e.target.value)}
+                onChange={(e) => {
+                  handleInputChange('title', e.target.value);
+                  setErrors(prev => ({...prev, title: ''}));
+                }}
                 placeholder="Enter your course title"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className={`w-full px-4 py-3 border ${
+                  errors.title ? 'border-red-500' : 'border-gray-300'
+                } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
               />
+              {errors.title && (
+                <p className="text-red-500 text-sm mt-1">{errors.title}</p>
+              )}
             </div>
 
             <div>
@@ -110,9 +133,11 @@ export default function CreateCourseModal({ onClose }: CreateCourseModalProps) {
                   Category *
                 </label>
                 <select
+                  id="category-select"
                   value={formData.category}
                   onChange={(e) => handleInputChange('category', e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  aria-label="Select course category"
                 >
                   <option value="">Select a category</option>
                   {categories.map(cat => (
@@ -126,9 +151,11 @@ export default function CreateCourseModal({ onClose }: CreateCourseModalProps) {
                   Difficulty Level *
                 </label>
                 <select
+                  id="difficulty-select"
                   value={formData.difficulty}
                   onChange={(e) => handleInputChange('difficulty', e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  aria-label="Select course difficulty level"
                 >
                   <option value="Beginner">Beginner</option>
                   <option value="Intermediate">Intermediate</option>
@@ -157,6 +184,8 @@ export default function CreateCourseModal({ onClose }: CreateCourseModalProps) {
                 </label>
                 <input
                   type="number"
+                  min="0"
+                  step="1"
                   value={formData.reward}
                   onChange={(e) => handleInputChange('reward', e.target.value)}
                   placeholder="500"
@@ -170,12 +199,52 @@ export default function CreateCourseModal({ onClose }: CreateCourseModalProps) {
                 Course Thumbnail
               </label>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
-                <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 mb-2">Upload course thumbnail</p>
-                <p className="text-sm text-gray-500">PNG, JPG up to 2MB</p>
-                <button className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                <input
+                  type="file"
+                  id="thumbnail-upload"
+                  className="hidden"
+                  accept="image/png, image/jpeg"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      if (file.size > 2 * 1024 * 1024) {
+                        setErrors(prev => ({...prev, image: 'File size must be less than 2MB'}));
+                        return;
+                      }
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        setFormData(prev => ({...prev, image: event.target?.result as string}));
+                      };
+                      reader.readAsDataURL(file);
+                      setErrors(prev => ({...prev, image: ''}));
+                    }
+                  }}
+                />
+                <label htmlFor="thumbnail-upload" className="cursor-pointer">
+                  {formData.image ? (
+                    <img
+                      src={formData.image}
+                      alt="Course thumbnail preview"
+                      className="w-full h-48 object-cover mx-auto mb-4 rounded-lg"
+                    />
+                  ) : (
+                    <>
+                      <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-600 mb-2">Upload course thumbnail</p>
+                      <p className="text-sm text-gray-500">PNG, JPG up to 2MB</p>
+                    </>
+                  )}
+                </label>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('thumbnail-upload')?.click()}
+                  className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
                   Choose File
                 </button>
+                {errors.image && (
+                  <p className="text-red-500 text-sm mt-2">{errors.image}</p>
+                )}
               </div>
             </div>
           </div>
@@ -202,6 +271,7 @@ export default function CreateCourseModal({ onClose }: CreateCourseModalProps) {
                     <button
                       onClick={() => removeArrayItem('learningObjectives', index)}
                       className="text-red-500 hover:text-red-700"
+                      aria-label="Remove learning objective"
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -234,6 +304,7 @@ export default function CreateCourseModal({ onClose }: CreateCourseModalProps) {
                     <button
                       onClick={() => removeArrayItem('prerequisites', index)}
                       className="text-red-500 hover:text-red-700"
+                      aria-label="Remove prerequisite"
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -305,14 +376,28 @@ export default function CreateCourseModal({ onClose }: CreateCourseModalProps) {
               </label>
               <div className="space-y-3">
                 <label className="flex items-center">
-                  <input type="radio" name="visibility" value="public" className="mr-3" defaultChecked />
+                  <input
+                    type="radio"
+                    name="visibility"
+                    value="public"
+                    className="mr-3"
+                    checked={formData.visibility === 'public'}
+                    onChange={(e) => handleInputChange('visibility', e.target.value)}
+                  />
                   <div>
                     <p className="font-medium">Public</p>
                     <p className="text-sm text-gray-500">Anyone can find and enroll in your course</p>
                   </div>
                 </label>
                 <label className="flex items-center">
-                  <input type="radio" name="visibility" value="unlisted" className="mr-3" />
+                  <input
+                    type="radio"
+                    name="visibility"
+                    value="unlisted"
+                    className="mr-3"
+                    checked={formData.visibility === 'unlisted'}
+                    onChange={(e) => handleInputChange('visibility', e.target.value)}
+                  />
                   <div>
                     <p className="font-medium">Unlisted</p>
                     <p className="text-sm text-gray-500">Only people with the link can access</p>
@@ -408,6 +493,7 @@ export default function CreateCourseModal({ onClose }: CreateCourseModalProps) {
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
+            aria-label="Close modal"
           >
             <X className="w-6 h-6" />
           </button>
@@ -415,7 +501,7 @@ export default function CreateCourseModal({ onClose }: CreateCourseModalProps) {
 
         {/* Progress Steps */}
         <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between max-w-full overflow-x-auto">
             {steps.map((step, index) => (
               <div key={step.id} className="flex items-center">
                 <div className={`flex items-center justify-center w-10 h-10 rounded-full ${
@@ -461,13 +547,36 @@ export default function CreateCourseModal({ onClose }: CreateCourseModalProps) {
             <button
               onClick={onClose}
               className="px-6 py-2 text-gray-600 hover:text-gray-800"
+              aria-label="Cancel course creation"
             >
               Cancel
             </button>
             
             {currentStep < 4 ? (
               <button
-                onClick={() => setCurrentStep(currentStep + 1)}
+                onClick={() => {
+                  const requiredFields: { [K in keyof FormData]?: string } = {
+                    title: 'Course title is required',
+                    description: 'Course description is required',
+                    category: 'Category is required',
+                    duration: 'Duration is required',
+                    reward: 'Reward is required'
+                  };
+                  
+                  const newErrors: Record<string, string> = {};
+                  (Object.keys(requiredFields) as (keyof FormData)[]).forEach((field) => {
+                    if (formData[field] === '') {
+                      newErrors[field] = requiredFields[field]!;
+                    }
+                  });
+                  
+                  if (Object.keys(newErrors).length > 0) {
+                    setErrors(newErrors);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else {
+                    setCurrentStep(currentStep + 1);
+                  }
+                }}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Next

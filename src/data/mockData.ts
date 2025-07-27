@@ -1,7 +1,10 @@
 import { Course, User, TokenomicsData, LeaderboardEntry } from '../types';
 import type { CreatedCourse, CourseStats } from '../types';
 
-export const mockUser: User = {
+const useMockData = import.meta.env.VITE_USE_MOCK_DATA === 'true';
+
+// Mock Data
+const _mockUser: User = {
   id: '1',
   name: 'Sir Johnson',
   email: 'sir.johnson@example.com',
@@ -14,7 +17,7 @@ export const mockUser: User = {
   xp: 3420
 };
 
-export const mockCourses: Course[] = [
+const _mockCourses: Course[] = [
   {
     id: '1',
     title: 'JavaScript Fundamentals',
@@ -83,7 +86,7 @@ export const mockCourses: Course[] = [
   }
 ];
 
-export const mockCreatedCourses: CreatedCourse[] = [
+const _mockCreatedCourses: CreatedCourse[] = [
   {
     id: 'created-1',
     title: 'Advanced JavaScript Patterns',
@@ -176,7 +179,7 @@ export const mockCreatedCourses: CreatedCourse[] = [
   }
 ];
 
-export const mockCourseStats: CourseStats = {
+const _mockCourseStats: CourseStats = {
   totalCourses: 3,
   publishedCourses: 2,
   draftCourses: 1,
@@ -185,7 +188,7 @@ export const mockCourseStats: CourseStats = {
   averageRating: 4.8
 };
 
-export const tokenomicsData: TokenomicsData = {
+const _tokenomicsData: TokenomicsData = {
   totalSupply: 1000000000,
   circulatingSupply: 250000000,
   rewardsPool: 500000000,
@@ -194,7 +197,7 @@ export const tokenomicsData: TokenomicsData = {
   marketCap: 1125000
 };
 
-export const leaderboardData: LeaderboardEntry[] = [
+const _leaderboardData: LeaderboardEntry[] = [
   {
     rank: 1,
     user: 'Sir Johnson',
@@ -224,3 +227,45 @@ export const leaderboardData: LeaderboardEntry[] = [
     coursesCompleted: 12
   }
 ];
+
+// Empty Data
+const emptyUser: User = {
+  id: '',
+  name: '',
+  email: '',
+  avatar: '',
+  jscoinBalance: 0,
+  totalEarned: 0,
+  coursesCompleted: 0,
+  currentStreak: 0,
+  level: 0,
+  xp: 0
+};
+
+const emptyCourses: Course[] = [];
+const emptyCreatedCourses: CreatedCourse[] = [];
+const emptyCourseStats: CourseStats = {
+  totalCourses: 0,
+  publishedCourses: 0,
+  draftCourses: 0,
+  totalStudents: 0,
+  totalEarnings: 0,
+  averageRating: 0
+};
+const emptyTokenomicsData: TokenomicsData = {
+  totalSupply: 0,
+  circulatingSupply: 0,
+  rewardsPool: 0,
+  tgeDate: '',
+  currentPrice: 0,
+  marketCap: 0
+};
+const emptyLeaderboardData: LeaderboardEntry[] = [];
+
+// Export based on environment
+export const mockUser = useMockData ? _mockUser : emptyUser;
+export const mockCourses = useMockData ? _mockCourses : emptyCourses;
+export const mockCreatedCourses = useMockData ? _mockCreatedCourses : emptyCreatedCourses;
+export const mockCourseStats = useMockData ? _mockCourseStats : emptyCourseStats;
+export const tokenomicsData = useMockData ? _tokenomicsData : emptyTokenomicsData;
+export const leaderboardData = useMockData ? _leaderboardData : emptyLeaderboardData;
