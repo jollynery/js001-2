@@ -1,13 +1,36 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Jolly Scholar - JSCoin Learn-to-Earn Educational Platform</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to CourseHub</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; }
+    .container { max-width: 600px; margin: 60px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); padding: 2.5rem 2rem; text-align: center; }
+    h1 { color: #2d3a4b; }
+    .features { text-align: left; margin: 2rem 0; }
+    .features li { margin-bottom: 1rem; font-size: 1.1rem; color: #444; }
+    .cta-btns { margin-top: 2.5rem; }
+    .btn { background: #4285F4; color: #fff; border: none; border-radius: 5px; padding: 1rem 2.2rem; font-size: 1.1rem; margin: 0 1rem; cursor: pointer; transition: background 0.2s; }
+    .btn:hover { background: #3367d6; }
+    .note { color: #888; font-size: 0.95rem; margin-top: 2.5rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome to CourseHub</h1>
+    <p>Empowering you to learn and teach with ease.</p>
+    <ul class="features">
+      <li>📚 Take interactive courses on a variety of topics</li>
+      <li>📝 Create and publish your own courses</li>
+      <li>👥 Join a vibrant learning community</li>
+      <li>🔒 Secure social login (Google, Facebook, X/Twitter)</li>
+      <li>🎓 Track your progress and achievements</li>
+    </ul>
+    <div class="cta-btns">
+      <button class="btn" onclick="window.location.href='login.html'">Sign Up / Login</button>
+    </div>
+    <div class="note">You must sign up or log in to access the main site features.</div>
+  </div>
+</body>
 </html>
