@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Coins, Bell, Menu, BookOpen, Plus } from 'lucide-react';
 import { mockUser } from '../data/mockData';
+import WalletConnect from './WalletConnect';
 
 interface HeaderProps {
   activeTab: string;
@@ -9,6 +10,8 @@ interface HeaderProps {
 
 export default function Header({ activeTab, setActiveTab }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [walletModal, setWalletModal] = useState(false);
+  const [wallet, setWallet] = useState<string | null>(null);
   return (
     <header className="bg-white shadow-sm border-b border-gray-200" role="banner" aria-label="Main header">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -104,6 +107,21 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
               <Bell className="w-5 h-5" />
             </button>
 
+            {/* Connect Wallet Button */}
+            <div>
+              {wallet ? (
+                <button className="px-3 py-2 bg-green-100 text-green-700 rounded-lg font-semibold mr-2 cursor-default">
+                  {wallet.slice(0, 6)}...{wallet.slice(-4)}
+                </button>
+              ) : (
+                <button
+                  className="px-3 py-2 bg-blue-600 text-white rounded-lg font-semibold mr-2 hover:bg-blue-700"
+                  onClick={() => setWalletModal(true)}
+                >
+                  Connect Wallet
+                </button>
+              )}
+            </div>
             {/* User Avatar */}
             <div className="flex items-center space-x-2">
               <img
@@ -160,6 +178,40 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
           </div>
         </div>
       </div>
+    {/* Wallet Modal */}
+    {walletModal && (
+      <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg shadow-lg p-8 max-w-xs w-full relative">
+          <button
+            className="absolute top-2 right-2 text-gray-400 hover:text-gray-700"
+            onClick={() => setWalletModal(false)}
+            aria-label="Close"
+          >
+            ×
+          </button>
+          <h3 className="text-lg font-bold mb-4">Select Wallet</h3>
+          <div className="space-y-3">
+            <WalletConnect wallet={wallet} setWallet={(addr) => { setWallet(addr); setWalletModal(false); }} walletType="metamask" />
+            <button className="w-full px-4 py-2 bg-gray-100 rounded-lg flex items-center justify-between" onClick={() => alert('WalletConnect support coming soon!')}>
+              <span>WalletConnect</span>
+              <img src="https://walletconnect.com/_next/static/media/logo_mark.4c4876b0.svg" alt="WalletConnect" className="w-6 h-6" />
+            </button>
+            <button className="w-full px-4 py-2 bg-gray-100 rounded-lg flex items-center justify-between" onClick={() => alert('Coinbase Wallet support coming soon!')}>
+              <span>Coinbase Wallet</span>
+              <img src="https://avatars.githubusercontent.com/u/1885080?s=200&v=4" alt="Coinbase Wallet" className="w-6 h-6" />
+            </button>
+            <button className="w-full px-4 py-2 bg-gray-100 rounded-lg flex items-center justify-between" onClick={() => alert('Trust Wallet support coming soon!')}>
+              <span>Trust Wallet</span>
+              <img src="https://trustwallet.com/assets/images/media/assets/TWT.png" alt="Trust Wallet" className="w-6 h-6" />
+            </button>
+            <button className="w-full px-4 py-2 bg-gray-100 rounded-lg flex items-center justify-between" onClick={() => alert('Telegram Wallet (TON) support coming soon!')}>
+              <span>Telegram Wallet (TON)</span>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram Wallet" className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     </header>
   );
 }
